@@ -6,8 +6,8 @@
       ec2_group:
          name: AWS_security_grp
          description: rules allowing traffic on port 22 and 80
-         aws_access_key: AKIAJGYIJ4SDLSVVNXHA
-         aws_secret_key: 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
+         aws_access_key: 
+         aws_secret_key: 
          region: us-east-2
          rules:
           - proto: tcp
@@ -25,8 +25,8 @@
 #       instance_tags:
 #         Name: "{{ item }}" 
         key_name: hell
-        aws_access_key: AKIAJGYIJ4SDLSVVNXHA
-        aws_secret_key: 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
+        aws_access_key: 
+        aws_secret_key: 
         region: us-east-2
         instance_type: t2.micro
         image: ami-0653e888ec96eab9b
