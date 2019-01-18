@@ -1,0 +1,57 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Setting up Security Group 
+      ec2_group:
+         name: AWS_security_grp
+         description: rules allowing traffic on port 22 and 80
+         aws_access_key: AKIAJGYIJ4SDLSVVNXHA
+         aws_secret_key: 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
+         region: us-east-2
+         rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+    - name: Ec2 instance
+      ec2:
+#       instance_tags:
+#         Name: "{{ item }}" 
+        key_name: hell
+        aws_access_key: AKIAJGYIJ4SDLSVVNXHA
+        aws_secret_key: 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
+        region: us-east-2
+        instance_type: t2.micro
+        image: ami-0653e888ec96eab9b
+        wait: yes
+        wait_timeout: 200
+        count: 1
+        vpc_subnet_id: subnet-5a8c4416
+        assign_public_ip: yes
+        group: AWS_security_grp
+        user_data: |
+                   #!/bin/bash
+                   sudo apt-get install python
+                   sudo su
+                   cd /opt
+                   wget -O splunk-6.6.8-6c27a8439c1e-Linux-x86_64.tgz 'https://www.splunk.com/page/download_track?file=6.6.8/linux/splunk-6.6.8-6c27a8439c1e-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=6.6.8&product=splunk&typed=release'
+                   tar xvzf splunk-6.6.8-6c27a8439c1e-Linux-x86_64.tgz
+                   /opt/splunk/bin/splunk start --accept-license --answer-yes
+                   /opt/splunk/bin/splunk login -auth admin:changeme
+
+      register: ec2_out
+    - name: SSh
+      wait_for: host={{ item.public_dns_name }} port=22 delay=60 timeout=300 state=started
+      with_items: '{{ ec2_out.instances }}'
+#       - indexer1
+#       - indexer2
+#       - indexer3
+#       - master
+#       - search_head
